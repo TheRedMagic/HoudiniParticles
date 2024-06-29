@@ -1,0 +1,4 @@
+name: Template
+version: '${version}'
+main: com.redmagic.template.Template
+api-version: '1.20'
