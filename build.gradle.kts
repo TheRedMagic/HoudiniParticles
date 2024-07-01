@@ -28,17 +28,19 @@ repositories {
 dependencies {
     compileOnly("org.spigotmc:spigot-api:1.20.4-R0.1-SNAPSHOT")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
-    implementation("com.undefined:api:0.5.33:mappped")
+    implementation("com.undefined:api:0.5.44:mapped")
+
+    implementation("com.google.code.gson:gson:2.11.0")
 }
 
 tasks {
 
     shadowJar {
-        archiveFileName.set("${this.name}-shadow.jar")
+        archiveFileName.set("${this.project.name}-shadow.jar")
     }
 
     compileKotlin {
-        kotlinOptions.jvmTarget = "17"
+        kotlinOptions.jvmTarget = "21"
     }
     runServer {
         minecraftVersion(mcVersion)
@@ -46,5 +48,5 @@ tasks {
 }
 
 kotlin{
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
