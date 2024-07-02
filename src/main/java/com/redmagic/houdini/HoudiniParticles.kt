@@ -6,18 +6,22 @@ import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import com.undefined.api.UndefinedAPI
 import com.undefined.api.command.UndefinedCommand
+import com.undefined.api.event.event
 import com.undefined.api.nms.createFakeEntity
 import com.undefined.api.nms.interfaces.NMSBlockDisplayEntity
 import com.undefined.api.scheduler.delay
 import com.undefined.api.scheduler.repeatingTask
 import com.undefined.api.sendLog
 import org.bukkit.Material
+import org.bukkit.WorldCreator
 import org.bukkit.block.data.BlockData
 import org.bukkit.entity.EntityType
+import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
 import java.io.FileReader
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executors
 import kotlin.math.sqrt
 
 class HoudiniParticles : JavaPlugin() {
@@ -34,6 +38,10 @@ class HoudiniParticles : JavaPlugin() {
         getData().thenAccept {
             map = it
         }
+
+
+
+
 
         UndefinedCommand("Test")
             .addExecutePlayer {
@@ -75,9 +83,10 @@ class HoudiniParticles : JavaPlugin() {
 
                         entity.transformationInterpolationDuration = 1
 
-                        entity.offsetY = it.position[1].toFloat()
-                        entity.offsetX = it.position[0].toFloat()
-                        entity.offsetZ = it.position[2].toFloat()
+                        entity.offset(it.position[0].toFloat(), it.position[1].toFloat(), it.position[2].toFloat())
+
+
+                        entity.leftRotation(it.n[0], it.n[1], it.n[2])
 
                         entity.scale(it.scale)
 
@@ -155,19 +164,21 @@ class HoudiniParticles : JavaPlugin() {
                     val pList = listOf(position[0].asDouble * r , position[1].asDouble * r, position[2].asDouble * r)
 
                     val Cd = jsonObject["Cd"].asJsonArray
-
                     val rgbList = DoubleArray(3)
                     rgbList[0] = Cd[0].asDouble * 255
                     rgbList[1] = Cd[1].asDouble * 255
                     rgbList[2] = Cd[2].asDouble * 255
 
+                    val n = jsonObject["N"].asJsonArray
+                    val nList = listOf((n[0].asFloat * 360f), (n[1].asFloat * 360f), (n[2].asFloat * 360f))
+
                     val block = getClosetBlock(hMap, rgbList)
 
-                    var scale = jsonObject["pscale"].asDouble
+                    val scale = jsonObject["pscale"].asDouble
 
                     map.getOrElse(name) { map[name] = mutableListOf() }.let {
                         val l = map[name]!!
-                        l.add(SimulationData(id, pList, block, scale.toFloat()))
+                        l.add(SimulationData(id, pList, nList, block, scale.toFloat()))
                         map[name] = l
                     }
                 }
@@ -208,6 +219,7 @@ class HoudiniParticles : JavaPlugin() {
 data class SimulationData(
     val simId: Int,
     val position: List<Double>,
+    val n: List<Float>,
     val blockData: BlockData,
     val scale: Float
 )
